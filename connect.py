@@ -2,12 +2,12 @@ import psycopg2
 import argparse
 
 parser = argparse.ArgumentParser(add_help=False)
-parser.add_argument("-h", "--host", action="store", dest="host", default="localhost")
-parser.add_argument("-p", "--port", action="store", dest="port", default="5432")
-parser.add_argument("-d", "--dbname", action="store", dest="dbname", default="postgres")
-parser.add_argument("-U", "--username", action="store", dest="username", default="postgres")
+parser.add_argument("-h", "--host", nargs='?', action="store", dest="host", default="localhost")
+parser.add_argument("-p", "--port", nargs='?', action="store", dest="port", default="5432")
+parser.add_argument("-d", "--dbname", nargs='?', action="store", dest="dbname", default="postgres")
+parser.add_argument("-U", "--username", nargs='?', action="store", dest="username", default="postgres")
 #parser.add_argument("-w", "--no-password", action="store_true")
-parser.add_argument("-W", "--password", action="store", dest="password", default=None)
+parser.add_argument("-W", "--password", nargs='?', action="store", dest="password", default=None)
 
 args = parser.parse_args()
 
@@ -90,3 +90,6 @@ CREATE TABLE IF NOT EXISTS venues(
     types TEXT ARRAY NOT NULL
 );
 """)
+
+conn.commit()
+conn.close()
