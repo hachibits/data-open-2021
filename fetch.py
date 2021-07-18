@@ -21,23 +21,37 @@ conn = psycopg2.connect(
 )
 c = conn.cursor()
 
+def write(path, m_dict):
+    with open("./data/{}".format(path), "wb") as f:
+        w = csv.DictWriter(f, m_dict[0].keys())
+        w.writerow(dict((fn,fn) for fn in m_dict[0].keys()))
+        w.writerows(m_dict)
+
 def extract():
     def getMonthlyListings():
         return c.execute("""
             SELECT l.id, l.longitude, l.latitude, c.date
-            FROM listings l, calendar c
-            WHERE l.id = c.listing_id
+            FROM listings l JOIN calendar c ON (l.id = c.listing_id)
             ORDER BY c.date ASC
         """).fetchall()
-    def write(path, m_dict):
-        with open("./data/{}".format(path), "wb") as f:
-            w = csv.DictWriter(f, m_dict[0].keys())
-            w.writerow(dict((fn,fn) for fn in m_dict[0].keys()))
-            w.writerows(m_dict)
-    write("l_by_month.csv", getMonthlyListings())
+    def genSpatial(table):
+        c.execute("ALTER TABLE %s ADD IF NOT EXISTS geom GEOMETRY(POINT, 4326)" % (table))
+        c.execute("UPDATE %s SET geom=ST_SetSRID(ST_Point(longitude, latitude), 4326)" % (table))
+    
+    for table in ["listings", "venues"]:
+        genSpatial(table)
+
+    return getMonthlyListings()
 
 try:
-    extract()
+    write("l_by_month.csv", extract())
+    c.execute("""
+        CREATE TABLE venues_regional_density AS
+        SELECT v.city, COUNT(*) AS density
+        FROM listings l JOIN venues v on ST_CONTAINS(l.geom, v.geom)
+        LEFT OUTER JOIN calendar c ON (l.id = c.listing_id)
+        GROUP BY v.city
+    """)
 except psycopg2.DatabaseError as e:
     if e.pgcode != None: print(e)
 conn.commit()
