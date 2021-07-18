@@ -50,10 +50,10 @@ if __name__ == "__main__":
 
     path = "./data"
     if args.listings:
-        listings_path = os.path.join(path, "listings2.csv")
+        listings_path = os.path.join(path, "listings.csv")
         loadDatabase(conn, listings_path, "listings")
     if args.calendar:
-        calendar_path = os.path.join(path, "calendar2.csv.gz")
+        calendar_path = os.path.join(path, "calendar.csv.gz")
         loadDatabase(conn, calendar_path, "calendar")
     if args.real_estate:
         real_estate_path = os.path.join(path, "real_estate.csv.gz")
