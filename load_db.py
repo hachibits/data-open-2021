@@ -5,15 +5,22 @@ import pandas as pd
 
 def loadDatabase(conn, path, schema):
     c = conn.cursor()
-    df =  pd.read_csv(path, compression='gzip', index_col=0) if path[-3:] == ".gz" else pd.read_csv(path, index_col=0)
+    df =  pd.read_csv(path, compression='gzip') if path[-3:] == ".gz" else pd.read_csv(path)
+
     for i, row in df.iterrows():
+        for key in df.columns.values:
+            if str(row[key]) == "nan":
+                row[key] = psycopg2.extensions.AsIs('NULL')
+            if isinstance(row[key], str):
+                row[key] = f"'{row[key]}'"
         c.execute("""
-          INSERT INTO %(schema)s VALUES(
+        INSERT INTO %(table)s VALUES(
             %(row)s
-          );
+        );
         """ % {
-            "schema" : schema,
-            "row" : ", ".join(map(str, row))
+            "table": schema,
+            #"row" : ", ".join(map(lambda x: f"'{str(x)}'" if isinstance(x, str) else str(x), row.values))
+            "row": ", ". join(map(str, row))
         })
 
     conn.commit()
@@ -43,10 +50,10 @@ if __name__ == "__main__":
 
     path = "./data"
     if args.listings:
-        listings_path = os.path.join(path, "listings.csv")
+        listings_path = os.path.join(path, "listings2.csv")
         loadDatabase(conn, listings_path, "listings")
     if args.calendar:
-        calendar_path = os.path.join(path, "calendar.csv.gz")
+        calendar_path = os.path.join(path, "calendar2.csv.gz")
         loadDatabase(conn, calendar_path, "calendar")
     if args.real_estate:
         real_estate_path = os.path.join(path, "real_estate.csv.gz")

@@ -21,26 +21,27 @@ conn = psycopg2.connect(
 c = conn.cursor()
 
 c.execute("""
-CREATE TABLE IF NOT EXISTS listings(
-    accommodates INTEGER NOT NULL,
-    amenities TEXT ARRAY NOT NULL,
-    availability_30 INTEGER NOT NULL,
-    bathrooms INTEGER NOT NULL,
-    bed_type VARCHAR(20) NOT NULL,
-    bedrooms INTEGER NOT NULL,
-    beds INTEGER NOT NULL,
-    cancellation_policy VARCHAR(10) NOT NULL,
-    city VARCHAR(20) NOT NULL,
-    has_availability BOOLEAN NOT NULL,
-    host_id INTEGER NOT NULL,
-    id INTEGER PRIMARY KEY NOT NULL,
-    instant_bookable BOOLEAN NOT NULL,
-    latitude FLOAT NOT NULL,
-    longitude FLOAT NOT NULL,
-    metropolitan VARCHAR(20) NOT NULL,
-    name VARCHAR(50) NOT NULL,
-    price FLOAT NOT NULL,
-    property_type VARCHAR(20) NOT NULL,
+DROP TABLE IF EXISTS listings;
+
+CREATE TABLE listings(
+    accommodates INTEGER,
+    amenities TEXT ARRAY,
+    availability_30 INTEGER,
+    bathrooms INTEGER,
+    bed_type VARCHAR(20),
+    bedrooms INTEGER,
+    beds INTEGER,
+    cancellation_policy VARCHAR(20),
+    city VARCHAR(50),
+    has_availability BOOLEAN,
+    host_id INTEGER,
+    id INTEGER PRIMARY KEY,
+    instant_bookable BOOLEAN,
+    latitude FLOAT,
+    longitude FLOAT,
+    metropolitan VARCHAR(20),
+    price FLOAT,
+    property_type VARCHAR(20),
     review_scores_checkin INTEGER,
     review_scores_cleanliness INTEGER,
     review_scores_communication INTEGER,
@@ -48,46 +49,51 @@ CREATE TABLE IF NOT EXISTS listings(
     review_scores_rating INTEGER,
     review_scores_value INTEGER,
     room_type VARCHAR(20) CHECK(room_type in ('Entire home/apt', 'Private room', 'Shared room')),
-    state VARCHAR(20) NOT NULL,
-    weekly_price FLOAT NOT NULL,
-    zipcode INTEGER NOT NULL
+    state VARCHAR(20),
+    weekly_price FLOAT,
+    zipcode INTEGER
 );
 """)
 
 c.execute("""
-CREATE TABLE IF NOT EXISTS calendar(
-    listing_id INTEGER NOT NULL,
-    date DATE NOT NULL,
-    available BOOLEAN NOT NULL,
-    price FLOAT NOT NULL,
-    metropolitan VARCHAR(20) NOT NULL,
-    PRIMARY KEY(listing_id)
+DROP TABLE IF EXISTS calendar;
+
+CREATE TABLE calendar(
+    listing_id INTEGER,
+    date DATE,
+    available BOOLEAN,
+    price FLOAT,
+    metropolitan VARCHAR(20)
 );
 """)
 
 c.execute("""
-CREATE TABLE IF NOT EXISTS real_estate(
+DROP TABLE IF EXISTS real_estate;
+
+CREATE TABLE real_estate(
     type VARCHAR(4) CHECK(type in ('ZHVI', 'ZRI')),
-    zipcode INTEGER NOT NULL,
-    city VARCHAR(20) NOT NULL,
-    state VARCHAR(20) NOT NULL,
-    metro VARCHAR(20) NOT NULL,
-    county VARCHAR(20) NOT NULL,
-    size_rank INTEGER NOT NULL,
-    date DATE NOT NULL,
+    zipcode INTEGER,
+    city VARCHAR(20),
+    state VARCHAR(20),
+    metro VARCHAR(20),
+    county VARCHAR(20),
+    size_rank INTEGER,
+    date DATE,
     PRIMARY KEY(size_rank)
 );
 """)
 
 c.execute("""
-CREATE TABLE IF NOT EXISTS venues(
-    city VARCHAR(20) NOT NULL,
-    id VARCHAR(40) PRIMARY KEY NOT NULL,
-    latitude FLOAT NOT NULL,
-    longitude FLOAT NOT NULL,
-    name VARCHAR(50) NOT NULL,
-    rating FLOAT NOT NULL,
-    types TEXT ARRAY NOT NULL
+DROP TABLE IF EXISTS venues;
+
+CREATE TABLE venues(
+    city VARCHAR(20),
+    id VARCHAR(40) PRIMARY KEY,
+    latitude FLOAT,
+    longitude FLOAT,
+    name VARCHAR(50),
+    rating FLOAT,
+    types TEXT ARRAY
 );
 """)
 
